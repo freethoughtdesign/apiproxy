@@ -1,0 +1,8 @@
+# This compose file is primarily for development.
+services:
+  api:
+    build: .
+    user: '1000'
+    env_file: .env
+    ports:
+      - 8787:8787

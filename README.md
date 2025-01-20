@@ -43,3 +43,22 @@ async function getData() {
   }
 }
 ```
+
+##
+
+```
+docker build -t apiproxy .
+```
+
+```
+docker run --name apiproxy --rm -d \
+  -p 8787:8787 \
+  -e PORT=8787 \
+  -e API_HOSTNAME=docs.getgrist.com \
+  -e ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e \
+  apiproxy
+```
+
+```
+docker compose up --build -d
+```
