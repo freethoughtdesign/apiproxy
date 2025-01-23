@@ -2,7 +2,7 @@
 
 This is a very basic API proxy that adds relaxed CORS headers to API calls. This allows easier use of direct API calls in web browser javascript.
 
-It also hides HTTP `Authorization: Bearer` access tokens to keep them out of that javascript.
+It also hides HTTP `Authorization` header credentials and tokens to keep them out of that javascript.
 
 ## Usage
 
@@ -12,7 +12,7 @@ Configuration is set via environment variables. For example:
 LISTEN=localhost \
 PORT=8787 \
 API_BASE=https://docs.getgrist.com/api \
-ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e \
+AUTHORIZATION="Bearer 16274320ba0fd00dee589af6ebd21d5c664b0e3e" \
 ./bin/apiproxy
 ```
 
@@ -24,7 +24,7 @@ The following environment variables are available:
 
 `API_BASE` - The base URL of the upstream API server, e.g. `https://example.com/api` or `https://api.example.net`.
 
-`ACCESS_TOKEN` - The `Authorization: Bearer` token for the API server. This is currently the only supported authorization method.
+`AUTHORIZATION` - The `Authorization` header value for the API server, e.g. `Bearer 16274320ba0fd00dee589af6ebd21d5c664b0e3e` or `Basic dXNlcjpwYXNz`
 
 ### Container image
 
@@ -34,7 +34,7 @@ A [container image for apiproxy](https://github.com/freethoughtdesign/apiproxy/p
 docker run --name apiproxy --rm -d \
   -p 8787:8787 \
   -e API_BASE=https://docs.getgrist.com/api \
-  -e ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e \
+  -e AUTHORIZATION="Bearer 16274320ba0fd00dee589af6ebd21d5c664b0e3e" \
   ghcr.io/freethoughtdesign/apiproxy:latest
 ```
 
@@ -48,7 +48,7 @@ services:
       - 8787:8787
     environment:
       API_BASE: https://docs.getgrist.com/api
-      ACCESS_TOKEN: 16274320ba0fd00dee589af6ebd21d5c664b0e3e
+      AUTHORIZATION: "Bearer 16274320ba0fd00dee589af6ebd21d5c664b0e3e"
 ```
 
 ## Building
@@ -62,7 +62,7 @@ go build -o ./bin/apiproxy main.go
 You can quickly test during development with a command like this:
 
 ```
-LISTEN=localhost PORT=8787 API_BASE=https://docs.getgrist.com/api ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e go run main.go
+LISTEN=localhost PORT=8787 API_BASE=https://docs.getgrist.com/api AUTHORIZATION="Bearer 16274320ba0fd00dee589af6ebd21d5c664b0e3e" go run main.go
 ```
 
 You can also use Docker Compose to build and run the container from the `compose.yml` file in this repo. Copy `.env.example` to `.env` and modify it. Then run:
@@ -85,7 +85,7 @@ But the API service doesn't support direct use from browser javascript, and even
 You could instead run the proxy like so:
 
 ```
-API_BASE=https://docs.getgrist.com/api ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e ./bin/apiproxy
+API_BASE=https://docs.getgrist.com/api AUTHORIZATION="Bearer 16274320ba0fd00dee589af6ebd21d5c664b0e3e" ./bin/apiproxy
 ```
 
 And access the API via:

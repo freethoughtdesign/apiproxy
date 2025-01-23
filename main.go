@@ -51,9 +51,9 @@ func main() {
 		log.Fatal("Error loading API_BASE env var.")
 	}
 
-	token := os.Getenv("ACCESS_TOKEN")
-	if token == "" {
-		log.Fatal("Error loading ACCESS_TOKEN env var.")
+	authn := os.Getenv("AUTHORIZATION")
+	if authn == "" {
+		log.Fatal("Error loading AUTHORIZATION env var.")
 	}
 
 	mux := http.NewServeMux()
@@ -76,7 +76,7 @@ func main() {
 		}
 
 		req.Header.Set("Content-Type", r.Header.Get("Content-Type"))
-		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Authorization", authn)
 		resp, err := client.Do(req)
 
 		if err != nil {
