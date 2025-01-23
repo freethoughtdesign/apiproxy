@@ -1,12 +1,39 @@
 package main
 
 import (
+	"compress/gzip"
 	"crypto/tls"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
+
+type gzipResponseWriter struct {
+	io.Writer
+	http.ResponseWriter
+}
+
+func (w gzipResponseWriter) Write(b []byte) (int, error) {
+	return w.Writer.Write(b)
+}
+
+func gzipHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		w.Header().Set("Content-Encoding", "gzip")
+		gz := gzip.NewWriter(w)
+		defer gz.Close()
+
+		gzr := gzipResponseWriter{Writer: gz, ResponseWriter: w}
+		next.ServeHTTP(gzr, r)
+	})
+}
 
 func main() {
 	port := os.Getenv("PORT")
@@ -29,7 +56,8 @@ func main() {
 		log.Fatal("Error loading ACCESS_TOKEN env var.")
 	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Create a custom transport with system root CAs
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{RootCAs: nil}, // Use system root CAs
@@ -81,5 +109,5 @@ func main() {
 	})
 
 	log.Printf("Proxying %s on port %s", hostname, port)
-	log.Fatal(http.ListenAndServe(listen+":"+port, nil))
+	log.Fatal(http.ListenAndServe(listen+":"+port, gzipHandler(mux)))
 }
