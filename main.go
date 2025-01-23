@@ -63,7 +63,11 @@ func main() {
 			TLSClientConfig: &tls.Config{RootCAs: nil}, // Use system root CAs
 		}
 		client := &http.Client{Transport: tr}
-		url := "https://" + hostname + r.URL.Path
+		query := ""
+		if r.URL.RawQuery != "" {
+			query = "?" + r.URL.RawQuery
+		}
+		url := "https://" + hostname + r.URL.Path + query
 		req, err := http.NewRequest(r.Method, url, r.Body)
 
 		if err != nil {
@@ -89,7 +93,7 @@ func main() {
 			return
 		}
 
-		log.Printf("%s request for %s: %s", r.Method, r.URL.Path, resp.Status)
+		log.Printf("%s request for %s: %s", r.Method, r.URL.Path+query, resp.Status)
 
 		// TODO: Consider caching responses here.
 
