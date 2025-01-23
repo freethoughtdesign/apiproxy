@@ -11,7 +11,7 @@ Configuration is set via environment variables. For example:
 ```
 LISTEN=localhost \
 PORT=8787 \
-API_HOSTNAME=docs.getgrist.com \
+API_BASE=https://docs.getgrist.com/api \
 ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e \
 ./bin/apiproxy
 ```
@@ -22,7 +22,7 @@ The following environment variables are available:
 
 `PORT` - The port to listen on. Defaults to `8787`.
 
-`API_HOSTNAME` - The hostname of the upstream API server.
+`API_BASE` - The base URL of the upstream API server, e.g. `https://example.com/api` or `https://api.example.net`.
 
 `ACCESS_TOKEN` - The `Authorization: Bearer` token for the API server. This is currently the only supported authorization method.
 
@@ -33,7 +33,7 @@ A [container image for apiproxy](https://github.com/freethoughtdesign/apiproxy/p
 ```
 docker run --name apiproxy --rm -d \
   -p 8787:8787 \
-  -e API_HOSTNAME=docs.getgrist.com \
+  -e API_BASE=https://docs.getgrist.com/api \
   -e ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e \
   ghcr.io/freethoughtdesign/apiproxy:latest
 ```
@@ -47,7 +47,7 @@ services:
     ports:
       - 8787:8787
     environment:
-      API_HOSTNAME: docs.getgrist.com
+      API_BASE: https://docs.getgrist.com/api
       ACCESS_TOKEN: 16274320ba0fd00dee589af6ebd21d5c664b0e3e
 ```
 
@@ -62,7 +62,7 @@ go build -o ./bin/apiproxy main.go
 You can quickly test during development with a command like this:
 
 ```
-LISTEN=localhost PORT=8787 API_HOSTNAME=docs.getgrist.com ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e go run main.go 
+LISTEN=localhost PORT=8787 API_BASE=https://docs.getgrist.com/api ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e go run main.go
 ```
 
 You can also use Docker Compose to build and run the container from the `compose.yml` file in this repo. Copy `.env.example` to `.env` and modify it. Then run:
@@ -85,20 +85,20 @@ But the API service doesn't support direct use from browser javascript, and even
 You could instead run the proxy like so:
 
 ```
-API_HOSTNAME=docs.getgrist.com ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e ./bin/apiproxy 
+API_BASE=https://docs.getgrist.com/api ACCESS_TOKEN=16274320ba0fd00dee589af6ebd21d5c664b0e3e ./bin/apiproxy
 ```
 
 And access the API via:
 
 ```
-http://localhost:8787/api/docs/t00TDwkP4gQ3/tables/Locations/records
+http://localhost:8787/docs/t00TDwkP4gQ3/tables/Locations/records
 ```
 
 Because this proxy adds CORS headers, you could then call the API in client-side javascript:
 
 ```javascript
 async function getData() {
-  const url = "http://localhost:8787/api/docs/t00TDwkP4gQ3/tables/Locations/records";
+  const url = "http://localhost:8787/docs/t00TDwkP4gQ3/tables/Locations/records";
 
   try {
     const response = await fetch(url);

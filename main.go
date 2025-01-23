@@ -46,9 +46,9 @@ func main() {
 		listen = "0.0.0.0"
 	}
 
-	hostname := os.Getenv("API_HOSTNAME")
-	if hostname == "" {
-		log.Fatal("Error loading API_HOSTNAME env var.")
+	api_base := os.Getenv("API_BASE")
+	if api_base == "" {
+		log.Fatal("Error loading API_BASE env var.")
 	}
 
 	token := os.Getenv("ACCESS_TOKEN")
@@ -67,7 +67,7 @@ func main() {
 		if r.URL.RawQuery != "" {
 			query = "?" + r.URL.RawQuery
 		}
-		url := "https://" + hostname + r.URL.Path + query
+		url := api_base + r.URL.Path + query
 		req, err := http.NewRequest(r.Method, url, r.Body)
 
 		if err != nil {
@@ -97,7 +97,7 @@ func main() {
 
 		// TODO: Consider caching responses here.
 
-		w.Header().Set("X-Generator", "API Proxy for "+hostname)
+		w.Header().Set("X-Generator", "API Proxy for "+api_base)
 		w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 		w.Header().Set("Date", resp.Header.Get("Date"))
 		w.Header().Set("Etag", resp.Header.Get("Etag"))
@@ -112,6 +112,6 @@ func main() {
 		w.Write(body)
 	})
 
-	log.Printf("Proxying %s on port %s", hostname, port)
+	log.Printf("Proxying %s on port %s", api_base, port)
 	log.Fatal(http.ListenAndServe(listen+":"+port, gzipHandler(mux)))
 }
